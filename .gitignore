@@ -119,3 +119,4 @@ project/plugins/project/
 .lib/
 
 /project/target/
+/.idea/

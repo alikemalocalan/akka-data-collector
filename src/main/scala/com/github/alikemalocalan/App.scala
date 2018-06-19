@@ -31,7 +31,7 @@ object App {
   println(system.settings.Loggers.toString())
   def main(args: Array[String]): Unit = {
 
-    def logger = Logger.apply(App.this.getClass.getSimpleName)
+    val logger = Logger.apply(App.this.getClass.getSimpleName)
 
 
     val userRoutes = path("users") {
@@ -50,7 +50,7 @@ object App {
     val pulseRoutes = path("pulse") {
       import com.github.alikemalocalan.model.PulseProtocol._
       post {
-        headerValueByName("Authorization") { authHeader =>
+        headerValueByName("Token") { authHeader =>
           if (authHeader.substring(6).nonEmpty && authHeader.startsWith("Basic ")) {
             entity(as[Pulse]) { entity =>
               logger.debug(s"Request Pulse: ${entity.toString}")

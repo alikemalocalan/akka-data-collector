@@ -12,16 +12,18 @@ import scala.concurrent.Future
 
 class Repo(db: Database) {
   val users = TableQuery[UserTable]
+  val logger = Logger.apply(Repo.this.getClass.getSimpleName)
 
   def insertUser(user: User): Future[Int] = {
     logger.debug(s"User adding: ${user.name}")
     db.run(users += user)
   }
 
-  def insertPulse(tokenKey: String, pulse: Pulse): Future[Int] = {
+  //maybe return Future[Int] but waıt timeout
+  def insertPulse(tokenKey: String, pulse: Pulse): Future[Unit] = {
     //Await.result(db.run(TableQuery[PulseTable].schema.create),3 seconds)
 
-    logger.debug(s"User adding: ${pulse.toString}")
+    logger.debug(s"Pulse adding: ${pulse.toString}")
     val tokens = TableQuery[TokenTable]
     val pulses = TableQuery[PulseTable]
 
@@ -35,7 +37,5 @@ class Repo(db: Database) {
     } yield res
 
   }
-
-  def logger = Logger.apply(Repo.this.getClass.getSimpleName)
 
 }

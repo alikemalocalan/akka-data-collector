@@ -56,7 +56,7 @@ object App {
               logger.debug(s"Request Pulse: ${entity.toString}")
               onComplete(pulseActor ? PulseRequest(authHeader.substring(6), entity)) {
                 case Success(_) => complete(StatusCodes.Created)
-                case Failure(e) => complete(StatusCodes.InternalServerError, e.toString)
+                case Failure(e) => complete(StatusCodes.InternalServerError, e.getStackTrace.toString)
               }
             }
           } else {

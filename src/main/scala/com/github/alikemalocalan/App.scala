@@ -10,7 +10,7 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.github.alikemalocalan.actor.{PulseInsertActor, UserInsertActor}
-import com.github.alikemalocalan.model.{Pulse, PulseRequest, User}
+import com.github.alikemalocalan.model._
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContextExecutor
@@ -74,7 +74,16 @@ object App {
       }
     }
 
-    val routes = userRoutes ~ healthRoute ~ pulseRoutes
+    val initRoute = path("dbinit") {
+      get {
+        val schema = TableQuery[UserTable].schema ++ TableQuery[MachineTable].schema ++ TableQuery[TokenTable].schema ++ TableQuery[PulseTable].schema
+        db.run(schema.create).foreach(println)
+        logger.debug("DB Inited")
+        complete(StatusCodes.OK)
+      }
+    }
+
+    val routes = userRoutes ~ healthRoute ~ pulseRoutes ~ initRoute
 
 
     Http().bindAndHandle(routes, "0.0.0.0", 9000).map { r =>

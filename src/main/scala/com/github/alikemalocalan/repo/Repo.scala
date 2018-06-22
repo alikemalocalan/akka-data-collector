@@ -2,11 +2,10 @@ package com.github.alikemalocalan.repo
 
 import akka.event.slf4j.Logger
 import com.github.alikemalocalan.model._
-import slick.dbio.DBIOAction
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Success
 //val userid = TableQuery[TokenTable].filter(_.tokenkey === tokenKey).map(_.userid)
 //val pulse = TableQuery[PulseTable] join userid on (_.userid === _.userid)
 
@@ -31,15 +30,9 @@ class Repo(db: Database) {
 
     def updatePulseQuery(userId: Int) = pulses += pulse.updateUserID(userId)
 
-    val userIdQuery = tokens.filter(_.tokenkey === tokenKey).map(_.userid).result
-    val action: DBIO[Int] = for {
-      existingUser <- userIdQuery.headOption
-      rowsAffected <- existingUser match {
-        case Some(n) => updatePulseQuery(n)
-        case None => DBIOAction.failed(new Exception("User not found"))
-      }
-    } yield rowsAffected
-
-    db.run(action)
+    db.run(tokens.filter(_.tokenkey === tokenKey).map(_.machineid).result.head).value match {
+      case Some(Success(x)) => db.run(updatePulseQuery(x))
+      case _ => Future.failed(new Exception("User not found"))
+    }
   }
 }

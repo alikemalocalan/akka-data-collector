@@ -1,7 +1,6 @@
 package com.github.alikemalocalan
 
 import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.event.slf4j.Logger
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes
@@ -9,8 +8,10 @@ import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import ch.qos.logback.classic.{Level, Logger}
 import com.github.alikemalocalan.actor.{PulseInsertActor, UserInsertActor}
 import com.github.alikemalocalan.model._
+import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContextExecutor
@@ -28,20 +29,20 @@ object App {
   val userActor: ActorRef = system.actorOf(Props(new UserInsertActor(db)), "userinsert-actor")
   val pulseActor: ActorRef = system.actorOf(Props(new PulseInsertActor(db)), "pulseinsert-actor")
 
-  println(system.settings.Loggers.toString())
   def main(args: Array[String]): Unit = {
 
-    val logger = Logger.apply(App.this.getClass.getSimpleName)
+    val logger = LoggerFactory.getLogger(this.getClass.getSimpleName)
+    logger.asInstanceOf[Logger].setLevel(Level.DEBUG)
 
 
     val userRoutes = path("users") {
       import com.github.alikemalocalan.model.UserProtocol._
       post {
         entity(as[User]) { entity =>
-          logger.debug(s"Request Pulse: ${entity.toString}")
+          logger.debug(s"Request User: ${entity.toString}")
           onComplete(userActor ? entity) {
+            case Failure(e) => complete(StatusCodes.InternalServerError, e.getStackTrace.toString)
             case Success(_) => complete(StatusCodes.Created)
-            case Failure(_) => complete(StatusCodes.InternalServerError)
           }
         }
       }
@@ -55,8 +56,8 @@ object App {
             entity(as[Pulse]) { entity =>
               logger.debug(s"Request Pulse: ${entity.toString}")
               onComplete(pulseActor ? PulseRequest(authHeader.substring(6), entity)) {
+                case Failure(e) => complete(StatusCodes.InternalServerError, e.getLocalizedMessage)
                 case Success(_) => complete(StatusCodes.Created)
-                case Failure(e) => complete(StatusCodes.InternalServerError, e.getStackTrace.toString)
               }
             }
           } else {

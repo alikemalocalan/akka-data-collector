@@ -7,7 +7,11 @@ import slick.jdbc.PostgresProfile.api._
 import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
-case class Token(tokenkey: String, machineid: Option[Int] = None, send_at: Timestamp, inserted_at: Timestamp, updated_at: Timestamp, id: Option[Int] = None)
+case class Token(tokenkey: String,
+                 machineid: Option[Int] = None,
+                 created_date: Timestamp,
+                 last_modified_date: Timestamp,
+                 id: Option[Int] = None)
 
 object TokenProtocol extends DefaultJsonProtocol {
 
@@ -23,13 +27,13 @@ object TokenProtocol extends DefaultJsonProtocol {
   }
 
 
-  implicit val incomingJsonFormat: RootJsonFormat[Token] = jsonFormat6(Token)
+  implicit val incomingJsonFormat: RootJsonFormat[Token] = jsonFormat5(Token)
 }
 
 // create the schema
 //TableQuery[TokenTable].schema.create,
 class TokenTable(tag: Tag) extends Table[Token](tag, "TOKEN") {
-  def * = (tokenkey, machineid.?, send_at, inserted_at, updated_at, id.?) <> (Token.tupled, Token.unapply)
+  def * = (tokenkey, machineid.?, created_date, last_modified_date, id.?) <> (Token.tupled, Token.unapply)
 
   def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
@@ -37,11 +41,9 @@ class TokenTable(tag: Tag) extends Table[Token](tag, "TOKEN") {
 
   def machineid = column[Int]("MACHINEID")
 
-  def send_at = column[Timestamp]("SEND_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def created_date = column[Timestamp]("CREATED_DATE", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def inserted_at = column[Timestamp]("INSERTED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
-
-  def updated_at = column[Timestamp]("UPDATED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def last_modified_date = column[Timestamp]("LAST_MODIFIED_DATE", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
   def pk = foreignKey("TOKENS_MACHINE", machineid, TableQuery[MachineTable])(_.id)
 

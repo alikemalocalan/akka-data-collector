@@ -7,7 +7,12 @@ import slick.jdbc.PostgresProfile.api._
 import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
-case class Machine(name: String, userid: Int, send_at: Timestamp, inserted_at: Timestamp, updated_at: Timestamp, id: Option[Int] = None)
+case class Machine(name: String,
+                   userid: Int,
+                   activated: Boolean,
+                   inserted_at: Timestamp,
+                   updated_at: Timestamp,
+                   id: Option[Int] = None)
 
 object MachineProtocol extends DefaultJsonProtocol {
 
@@ -28,7 +33,7 @@ object MachineProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class MachineTable(tag: Tag) extends Table[Machine](tag, "MACHINE") {
-  def * = (name, userid, send_at, inserted_at, updated_at, id.?) <> (Machine.tupled, Machine.unapply)
+  def * = (name, userid, activated, created_date, last_modified_date, id.?) <> (Machine.tupled, Machine.unapply)
 
   def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
@@ -36,11 +41,11 @@ class MachineTable(tag: Tag) extends Table[Machine](tag, "MACHINE") {
 
   def userid = column[Int]("USERID")
 
-  def send_at = column[Timestamp]("SEND_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def activated = column[Boolean]("ISACTIVE")
 
-  def inserted_at = column[Timestamp]("INSERTED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def created_date = column[Timestamp]("CREATED_DATE", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def updated_at = column[Timestamp]("UPDATED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def last_modified_date = column[Timestamp]("LAST_MODIFIED_DATE", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
 
   def pk = foreignKey("MACHINES_USER", userid, TableQuery[UserTable])(_.id)

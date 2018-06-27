@@ -19,8 +19,10 @@ libraryDependencies ++= {
     "com.typesafe.slick" %% "slick-hikaricp" % slickV,
     "com.typesafe.slick" %% "slick-codegen" % slickV,
     "com.typesafe.akka" %% "akka-slf4j"                       % akkaV,
-    "ch.qos.logback" % "logback-classic" % "1.2.3",
-    "io.spray" %% "spray-can" % "1.3.2"
+    "ch.qos.logback" % "logback-classic" % "1.2.3"
+    /*
+        "org.slf4j" % "slf4j-nop" % "1.6.4"
+    */
 
   )
 }

@@ -9,10 +9,17 @@ import slick.lifted.ProvenShape
 import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
+import scala.util.Try
 
-case class Pulse(language: String, xp: Int, machineid: Option[Int] = None, send_at: Timestamp, inserted_at: Timestamp, updated_at: Timestamp, id: Option[Int] = None) {
-  def updateUserID(machine: Int): Pulse = {
-    Pulse(language, xp, Some(machine), send_at, inserted_at, updated_at, None)
+
+case class Pulse(language: String, xp: Int,
+                 machineid: Option[Int] = None,
+                 send_at: Option[Timestamp] = None,
+                 created_date: Option[Timestamp] = None,
+                 last_modified_date: Option[Timestamp] = None,
+                 id: Option[Int] = None) {
+  def updateMachineID(machine: Int): Pulse = {
+    Pulse(language, xp, Try(machine).toOption, send_at, created_date, last_modified_date, None)
   }
 }
 
@@ -24,6 +31,9 @@ object PulseProtocol extends DefaultJsonProtocol {
     override def write(obj: Timestamp): JsValue = JsString(format.format(obj))
 
     override def read(json: JsValue): Timestamp = {
+      if (json == null && json.toString().isEmpty) {
+        None
+      }
       val str = json.toString()
       new Timestamp(format.parse(str).getTime)
     }
@@ -35,7 +45,7 @@ object PulseProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class PulseTable(tag: Tag) extends Table[Pulse](tag, "PULSE") {
-  def * : ProvenShape[Pulse] = (language, xp, machineid.?, send_at, inserted_at, updated_at, id.?) <> (Pulse.tupled, Pulse.unapply)
+  def * : ProvenShape[Pulse] = (language, xp, machineid.?, send_at.?, created_date.?, last_modified_date.?, id.?) <> (Pulse.tupled, Pulse.unapply)
 
   def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
@@ -47,9 +57,9 @@ class PulseTable(tag: Tag) extends Table[Pulse](tag, "PULSE") {
 
   def send_at = column[Timestamp]("SEND_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def inserted_at = column[Timestamp]("INSERTED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def created_date = column[Timestamp]("CREATED_DATE", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def updated_at = column[Timestamp]("UPDATED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def last_modified_date = column[Timestamp]("LAST_MODIFIED_DATE", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
   def pk = foreignKey("PULSES_MACHINE", machineid, TableQuery[MachineTable])(_.id)
 }

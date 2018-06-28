@@ -6,7 +6,6 @@ import com.github.alikemalocalan.repo.Repo
 import slick.jdbc.PostgresProfile.api.Database
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class PulseInsertActor(db: Database) extends Actor with ActorLogging {
@@ -20,12 +19,12 @@ class PulseInsertActor(db: Database) extends Actor with ActorLogging {
       val result = repo.insertPulse(token, puls)
       val senderActor = sender()
 
-      result.map {
+      result.onComplete {
         case Failure(e) => senderActor ! akka.actor.Status.Failure(e)
         case Success(x) => senderActor ! x
       }
 
-    case _ => Future.failed(new Exception("Incorrect Pulse input"))
+    case _ => akka.actor.Status.Failure(new Exception("Incorrect Pulse input"))
   }
 
 }

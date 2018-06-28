@@ -1,8 +1,8 @@
 package com.github.alikemalocalan.model
 
 import java.sql.Timestamp
-import java.text.SimpleDateFormat
 
+import com.github.alikemalocalan.utils.DateUtils
 import slick.jdbc.PostgresProfile.api._
 import slick.sql.SqlProfile.ColumnOption.{Nullable, SqlType}
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
@@ -27,13 +27,11 @@ case class User(login: String,
 object UserProtocol extends DefaultJsonProtocol {
 
   implicit object timestampFormat extends RootJsonFormat[Timestamp] {
-    val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'")
 
-    override def write(obj: Timestamp): JsValue = JsString(format.format(obj))
+    override def write(obj: Timestamp): JsValue = JsString(DateUtils.timestampToString(obj))
 
     override def read(json: JsValue): Timestamp = {
-      val str = json.toString()
-      new Timestamp(format.parse(str).getTime)
+      DateUtils.strToTimestamp(json.convertTo[String])
     }
   }
 

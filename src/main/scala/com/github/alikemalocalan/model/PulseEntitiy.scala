@@ -2,8 +2,8 @@ package com.github.alikemalocalan.model
 
 
 import java.sql.Timestamp
-import java.text.SimpleDateFormat
 
+import com.github.alikemalocalan.utils.DateUtils
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 import slick.sql.SqlProfile.ColumnOption.SqlType
@@ -19,23 +19,18 @@ case class Pulse(language: String, xp: Int,
                  last_modified_date: Option[Timestamp] = None,
                  id: Option[Int] = None) {
   def updateMachineID(machine: Int): Pulse = {
-    Pulse(language, xp, Try(machine).toOption, send_at, created_date, last_modified_date, None)
+    Pulse(language, xp, Try(machine).toOption, send_at, Try(DateUtils.now()).toOption, Try(DateUtils.now()).toOption, None)
   }
 }
 
 object PulseProtocol extends DefaultJsonProtocol {
 
   implicit object timestampFormat extends RootJsonFormat[Timestamp] {
-    val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'")
 
-    override def write(obj: Timestamp): JsValue = JsString(format.format(obj))
+    override def write(obj: Timestamp): JsValue = JsString(DateUtils.timestampToString(obj))
 
     override def read(json: JsValue): Timestamp = {
-      if (json == null && json.toString().isEmpty) {
-        None
-      }
-      val str = json.toString()
-      new Timestamp(format.parse(str).getTime)
+      DateUtils.strToTimestamp(json.convertTo[String])
     }
   }
 

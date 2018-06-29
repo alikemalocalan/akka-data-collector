@@ -1,15 +1,15 @@
 package com.github.alikemalocalan.repo
 
-import com.github.alikemalocalan.model.User
+import org.scalatest.FunSuite
 import slick.jdbc.PostgresProfile.api._
 
-class UserRepoTest extends FunSuite {
+class PulseRepoTest extends FunSuite {
   val db: Database = Database.forConfig("slick-postgres")
 
   test("testFindByToken") {
     //db.run(TableQuery[TokenTable].schema.create)
-    val result = new Repo(db).insertUser(User("asd"))
-    println(result)
+    //    val result = new Repo(db).insertUser(Pulse("asd"))
+    //    println(result)
   }
 
   test("testUsers") {

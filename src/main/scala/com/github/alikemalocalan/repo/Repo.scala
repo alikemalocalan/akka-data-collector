@@ -41,17 +41,14 @@ class Repo(db: Database) {
     db.run(req)
   }
 
-  def insertXps(amount: Int, pulseId: Int, langId: Int): Future[Int] = {
-    val insertingXp = Xps(amount = amount,
-      pulse_id = pulseId,
-      language_id = langId,
-      inserted_at = new java.sql.Timestamp(System.currentTimeMillis()),
-      updated_at = new java.sql.Timestamp(System.currentTimeMillis()),
-      original_language_id = langId
-    )
-    val req = (xps returning xps.map(_.id)) += insertingXp
-    db.run(req)
-  }
+  def insertXpByArray(pulseId: Int, xps: Array[Xp]): Unit = {
+    val result = xps.map { xp =>
+      isDefinedLang(xp.language).map {
+        case Some(langId) => insertXp(xp.xp, pulseId, langId)
+        case None => insertLang(xp.language).map(insertXp(xp.xp, pulseId, _))
+      }
+    }
+
 
   def saveXpResponse(token: String, xpResponse: XpResponse): Future[Int] = {
     getMachineIdByToken(token).flatMap {
@@ -83,3 +80,15 @@ class Repo(db: Database) {
   }
 
 }
+
+  def insertXp(amount: Int, pulseId: Int, langId: Int): Future[Int] = {
+    val insertingXp = Xps(amount = amount,
+      pulse_id = pulseId,
+      language_id = langId,
+      inserted_at = new java.sql.Timestamp(System.currentTimeMillis()),
+      updated_at = new java.sql.Timestamp(System.currentTimeMillis()),
+      original_language_id = langId
+    )
+    val req = (xps returning xps.map(_.id)) += insertingXp
+    db.run(req)
+  }

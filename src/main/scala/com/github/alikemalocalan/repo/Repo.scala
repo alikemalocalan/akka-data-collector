@@ -48,7 +48,7 @@ class Repo(db: Database) {
         case None => insertLang(xp.language).map(insertXp(xp.xp, pulseId, _))
       }
     }
-
+  }
 
   def saveXpResponse(token: String, xpResponse: XpResponse): Future[Int] = {
     getMachineIdByToken(token).flatMap {
@@ -79,7 +79,6 @@ class Repo(db: Database) {
     db.run(req)
   }
 
-}
 
   def insertXp(amount: Int, pulseId: Int, langId: Int): Future[Int] = {
     val insertingXp = Xps(amount = amount,
@@ -92,3 +91,4 @@ class Repo(db: Database) {
     val req = (xps returning xps.map(_.id)) += insertingXp
     db.run(req)
   }
+}

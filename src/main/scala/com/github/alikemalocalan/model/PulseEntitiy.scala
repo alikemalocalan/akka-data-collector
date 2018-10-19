@@ -11,7 +11,7 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class Pulse(
                   id: Option[Int] = None,
-                  send_at: Option[Timestamp] = None,
+                  send_at: Timestamp = new Timestamp(System.currentTimeMillis()),
                   user_id: Int,
                   inserted_at: Timestamp,
                   updated_at: Timestamp,
@@ -30,7 +30,7 @@ object PulseProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class PulseTable(tag: Tag) extends Table[Pulse](tag, "pulses") {
-  def * : ProvenShape[Pulse] = (id.?, send_at.?, user_id, inserted_at, updated_at, machine_id, send_at_local, tz_offset) <> (Pulse.tupled, Pulse.unapply)
+  def * : ProvenShape[Pulse] = (id.?, send_at, user_id, inserted_at, updated_at, machine_id, send_at_local, tz_offset) <> (Pulse.tupled, Pulse.unapply)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 

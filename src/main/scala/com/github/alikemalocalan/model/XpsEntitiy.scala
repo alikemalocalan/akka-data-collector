@@ -12,7 +12,7 @@ case class Xps(
                 amount: Int,
                 pulse_id: Int,
                 language_id: Int,
-                inserted_at: Timestamp,
+                inserted_at: Timestamp = new Timestamp(System.currentTimeMillis()),
                 updated_at: Timestamp,
                 original_language_id: Int
               )

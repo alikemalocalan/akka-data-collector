@@ -13,6 +13,7 @@ import ch.qos.logback.classic.{Level, Logger}
 import com.github.alikemalocalan.actor.{MasterActor, UserInsertActor}
 import com.github.alikemalocalan.model.XpResponseProtocol._
 import com.github.alikemalocalan.model._
+import com.github.alikemalocalan.repo.Repo
 import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 
@@ -82,7 +83,15 @@ object App extends Config {
       }
     }
 
-    val routes = userRoutes ~ healthRoute ~ pulseRoutes
+    val create_db = path("initdb") {
+      get {
+        logger.debug("DB initing")
+        new Repo(db).create_db()
+        complete(StatusCodes.OK)
+      }
+    }
+
+    val routes = userRoutes ~ healthRoute ~ pulseRoutes ~ create_db
 
 
     Http().bindAndHandle(routes, "0.0.0.0", 9000).map { r =>

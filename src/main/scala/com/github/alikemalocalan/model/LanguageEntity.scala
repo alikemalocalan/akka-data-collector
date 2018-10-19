@@ -4,13 +4,12 @@ import java.sql.Timestamp
 
 import com.github.alikemalocalan.utils.DateUtils
 import slick.jdbc.PostgresProfile.api._
-import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
 case class Language(
                      id: Option[Int] = None,
                      name: String,
-                     inserted_at: Timestamp,
+                     inserted_at: Timestamp = new Timestamp(System.currentTimeMillis()),
                      updated_at: Timestamp,
                      alias_of_id: Int
                    )
@@ -39,9 +38,9 @@ class LanguageTable(tag: Tag) extends Table[Language](tag, "languages") {
 
   def name = column[String]("name", O.Unique)
 
-  def inserted_at = column[Timestamp]("inserted_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def inserted_at = column[Timestamp]("inserted_at", O.SqlType("timestamp not null default CURRENT_TIMESTAMP"))
 
-  def updated_at = column[Timestamp]("updated_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def updated_at = column[Timestamp]("updated_at", O.SqlType("timestamp not null default CURRENT_TIMESTAMP"))
 
   def alias_of_id = column[Int]("alias_of_id")
 

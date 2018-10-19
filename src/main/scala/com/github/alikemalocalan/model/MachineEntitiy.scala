@@ -9,9 +9,9 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 case class Machine(
                     id: Option[Int] = None,
                     name: String,
-                    created_at: Option[Timestamp] = None,
+                    created_at: Timestamp = new Timestamp(System.currentTimeMillis()),
                     userid: Int,
-                    inserted_at: Timestamp,
+                    inserted_at: Timestamp = new Timestamp(System.currentTimeMillis()),
                     updated_at: Timestamp,
                     api_salt: String,
                     activated: Boolean
@@ -27,7 +27,7 @@ object MachineProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class MachineTable(tag: Tag) extends Table[Machine](tag, "machines") {
-  def * = (id.?, name, created_at.?, userid, inserted_at, updated_at, api_salt, activated) <> (Machine.tupled, Machine.unapply)
+  def * = (id.?, name, created_at, userid, inserted_at, updated_at, api_salt, activated) <> (Machine.tupled, Machine.unapply)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 

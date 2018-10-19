@@ -12,7 +12,7 @@ case class User(
                  username: String,
                  email: String,
                  password: String,
-                 inserted_at: Timestamp,
+                 inserted_at: Timestamp = new Timestamp(System.currentTimeMillis()),
                  updated_at: Timestamp,
                  last_cached: Timestamp,
                  private_profile: Boolean,

@@ -29,7 +29,7 @@ SET default_with_oids = false;
 CREATE TABLE public.languages (
     id bigint NOT NULL,
     name character varying(255),
-    inserted_at timestamp without time zone NOT NULL,
+    inserted_at timestamp without time zone default CURRENT_TIMESTAMP,
     updated_at timestamp without time zone NOT NULL,
     alias_of_id bigint
 );
@@ -467,7 +467,7 @@ SELECT pg_catalog.setval('public.xps_id_seq', 1, false);
 --
 
 ALTER TABLE ONLY public.languages
-    ADD CONSTRAINT languages_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT languages_pkey PRIMARY KEY (id,'name');
 
 
 --

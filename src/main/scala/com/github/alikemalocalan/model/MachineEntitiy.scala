@@ -43,7 +43,7 @@ class MachineTable(tag: Tag) extends Table[Machine](tag, "machines") {
 
   def activated = column[Boolean]("active")
 
-  def pk = foreignKey("MACHINES_USER", userid, TableQuery[UserTable])(_.id)
+  def pk = foreignKey("machines_user_id_fkey", userid, TableQuery[UserTable])(_.id)
 
   def userid = column[Int]("user_id")
 }

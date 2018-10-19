@@ -25,25 +25,25 @@ object UserProtocol extends DefaultJsonProtocol {
 
 // create the schema
 //TableQuery[UserTable].schema.create,
-class UserTable(tag: Tag) extends Table[User](tag, "USERS") {
+class UserTable(tag: Tag) extends Table[User](tag, "users") {
   def * = (id.?, username, email, password, inserted_at, updated_at, last_cached, private_profile, cache) <> (User.tupled, User.unapply)
 
-  def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-  def username = column[String]("USERNAME")
+  def username = column[String]("username")
 
-  def password = column[String]("PASSWORD")
+  def password = column[String]("password")
 
-  def email = column[String]("EMAIL", O.Unique)
+  def email = column[String]("email", O.Unique)
 
-  def inserted_at = column[Timestamp]("INSERTED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def inserted_at = column[Timestamp]("inserted_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def updated_at = column[Timestamp]("UPDATED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def updated_at = column[Timestamp]("updated_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def last_cached = column[Timestamp]("LAST_CACHED")
+  def last_cached = column[Timestamp]("last_cached")
 
-  def private_profile = column[Boolean]("PRIVATE_PROFILE")
+  def private_profile = column[Boolean]("private_profile")
 
-  def cache = column[String]("CACHE")
+  def cache = column[String]("cache")
 
 }

@@ -49,7 +49,7 @@ class PulseTable(tag: Tag) extends Table[Pulse](tag, "pulses") {
   def tz_offset = column[Int]("tz_offset")
 
 
-  def pk_machine = foreignKey("PULSES_MACHINE", machine_id, TableQuery[MachineTable])(_.id)
+  def pk_machine = foreignKey("pulses_machine_id_fkey", machine_id, TableQuery[MachineTable])(_.id)
 
-  def pk_user = foreignKey("PULSES_USER", user_id, TableQuery[UserTable])(_.id)
+  def pk_user = foreignKey("pulses_user_id_fkey", user_id, TableQuery[UserTable])(_.id)
 }

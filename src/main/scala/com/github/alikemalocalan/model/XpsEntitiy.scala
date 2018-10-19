@@ -49,12 +49,11 @@ class XpsTable(tag: Tag) extends Table[Xps](tag, "XPS") {
 
   def original_language_id = column[Int]("ORIGINAL_LANGUAGE_ID")
 
-  def pk_pulse = foreignKey("XPS_PULSE", pulse_id, TableQuery[PulseTable])(_.id)
-
   def pulse_id = column[Int]("PULSE_ID")
 
-  def pk_lang = foreignKey("XPS_LANG", language_id, TableQuery[LanguageTable])(_.id)
+  def pk_lang = foreignKey("xps_language_id_fkey", language_id, TableQuery[LanguageTable])(_.id)
 
-  def pk_org_lang = foreignKey("XPS_ORG_LANG", original_language_id, TableQuery[LanguageTable])(_.id)
+  def pk_org_lang = foreignKey("xps_original_language_id_fkey", original_language_id, TableQuery[LanguageTable])(_.id)
 
+  def pk_pulse = foreignKey("xps_pulse_id_fkey", pulse_id, TableQuery[PulseTable])(_.id)
 }

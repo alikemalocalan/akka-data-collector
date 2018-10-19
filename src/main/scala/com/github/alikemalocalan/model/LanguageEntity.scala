@@ -32,19 +32,19 @@ object LanguageProtocol extends DefaultJsonProtocol {
 
 // create the schema
 //TableQuery[TokenTable].schema.create,
-class LanguageTable(tag: Tag) extends Table[Language](tag, "LANGUAGES") {
+class LanguageTable(tag: Tag) extends Table[Language](tag, "languages") {
   def * = (id.?, name, inserted_at, updated_at, alias_of_id) <> (Language.tupled, Language.unapply)
 
-  def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-  def name = column[String]("NAME", O.Unique)
+  def name = column[String]("name", O.Unique)
 
-  def inserted_at = column[Timestamp]("INSERTED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def inserted_at = column[Timestamp]("inserted_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def updated_at = column[Timestamp]("UPDATED_AT", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
+  def updated_at = column[Timestamp]("updated_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def alias_of_id = column[Int]("ALIAS_OF_ID")
+  def alias_of_id = column[Int]("alias_of_id")
 
-  def pk = foreignKey("XPS_PULSE", id, TableQuery[LanguageTable])(_.alias_of_id)
+  def pk = foreignKey("languages_alias_of_id_fkey", id, TableQuery[LanguageTable])(_.alias_of_id)
 
 }

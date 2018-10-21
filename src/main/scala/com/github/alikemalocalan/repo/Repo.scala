@@ -31,21 +31,21 @@ class Repo(db: Database) {
     db.run(isDefined)
   }
 
-  def insertLang(lang: String): Future[Int] = {
-    val insertingLang = Language(name = lang,
-      inserted_at = new java.sql.Timestamp(System.currentTimeMillis()),
-      updated_at = new java.sql.Timestamp(System.currentTimeMillis()),
+  def insertLang(lang: String,code_at:String): Future[Option[Int]] = {
+    val insertingLang = Language(name = lang.toLowerCase,
+      updated_at = DateUtils.strToTimestamp(code_at),
       alias_of_id = 1
     )
-    val req = (langs returning langs.map(_.id)) += insertingLang
+    val req = (langs returning langs.map(_.id)) insertOrUpdate insertingLang
     db.run(req)
   }
 
-  def insertXpByArray(pulseId: Int, xps: Array[Xp]): Unit = {
-    val result = xps.map { xp =>
-      isDefinedLang(xp.language).map {
+  def insertXpByArray(pulseId: Int, code_at:String,xps: Array[Xp])= {
+
+    val req: Array[Future[Future[Int]]] = xps.map { xp =>
+      insertLang(xp.language,code_at).map {
         case Some(langId) => insertXp(xp.xp, pulseId, langId)
-        case None => insertLang(xp.language).map(insertXp(xp.xp, pulseId, _))
+        case None => Future.failed(new Exception("Xps cant write"))
       }
     }
   }

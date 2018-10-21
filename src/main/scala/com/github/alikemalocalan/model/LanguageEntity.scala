@@ -10,7 +10,7 @@ import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 case class Language(
                      id: Option[Int] = None,
                      name: String,
-                     inserted_at: Timestamp,
+                     inserted_at: Option[Timestamp] = None,
                      updated_at: Timestamp,
                      alias_of_id: Int
                    )
@@ -33,7 +33,7 @@ object LanguageProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[TokenTable].schema.create,
 class LanguageTable(tag: Tag) extends Table[Language](tag, "languages") {
-  def * = (id.?, name, inserted_at, updated_at, alias_of_id) <> (Language.tupled, Language.unapply)
+  def * = (id.?, name, inserted_at.?, updated_at, alias_of_id) <> (Language.tupled, Language.unapply)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 

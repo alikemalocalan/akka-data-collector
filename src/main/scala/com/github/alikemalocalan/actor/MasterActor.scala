@@ -6,7 +6,6 @@ import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, OneForOneStrategy, Props, Terminated}
 import akka.routing.{ActorRefRoutee, RoundRobinRoutingLogic, Router}
 import com.github.alikemalocalan.model.InComingRequest
-import com.github.alikemalocalan.repo.Repo
 import slick.jdbc.PostgresProfile.api.Database
 
 import scala.concurrent.duration._
@@ -18,11 +17,9 @@ class MasterActor(db: Database, workerCount: Int) extends Actor with ActorLoggin
       case _: Exception => Stop
     }
 
-  val repo = new Repo(db)
-
   var workerActorRouter: Router = {
     val routees = Vector.fill(workerCount) {
-      val r = context.actorOf(Props(new XpsResponseInsertActor(db)))
+      val r = context.actorOf(Props(new PulseInsertActor(db)))
       context.watch(r)
       ActorRefRoutee(r)
     }
@@ -38,7 +35,7 @@ class MasterActor(db: Database, workerCount: Int) extends Actor with ActorLoggin
     case Terminated(s) =>
       log.error(s"${s.toString()} is terminated and will be killed.")
       workerActorRouter = workerActorRouter.removeRoutee(s)
-      val r = context.actorOf(Props(new XpsResponseInsertActor(db)))
+      val r = context.actorOf(Props(new PulseInsertActor(db)))
       context.watch(r)
       workerActorRouter = workerActorRouter.addRoutee(r)
 

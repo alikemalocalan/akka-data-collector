@@ -4,7 +4,7 @@ import java.sql.Timestamp
 
 import com.github.alikemalocalan.utils.DateUtils.TimestampFormat
 import slick.jdbc.PostgresProfile.api._
-import slick.sql.SqlProfile.ColumnOption.SqlType
+import slick.sql.SqlProfile.ColumnOption.{Nullable, SqlType}
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class User(
@@ -12,11 +12,11 @@ case class User(
                  username: String,
                  email: String,
                  password: String,
-                 inserted_at: Timestamp = new Timestamp(System.currentTimeMillis()),
-                 updated_at: Timestamp,
-                 last_cached: Timestamp,
-                 private_profile: Boolean,
-                 cache: String
+                 inserted_at: Option[Timestamp] = None,
+                 updated_at: Option[Timestamp] = None,
+                 last_cached: Option[Timestamp] = None,
+                 private_profile: Option[Boolean] = None,
+                 cache: Option[String] = None
                )
 
 object UserProtocol extends DefaultJsonProtocol {
@@ -26,11 +26,12 @@ object UserProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class UserTable(tag: Tag) extends Table[User](tag, "users") {
-  def * = (id.?, username, email, password, inserted_at, updated_at, last_cached, private_profile, cache) <> (User.tupled, User.unapply)
+
+  def * = (id.?, username, email, password, inserted_at.?, updated_at.?, last_cached.?, private_profile.?, cache.?) <> (User.tupled, User.unapply)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-  def username = column[String]("username")
+  def username = column[String]("username", O.Unique)
 
   def password = column[String]("password")
 
@@ -40,10 +41,9 @@ class UserTable(tag: Tag) extends Table[User](tag, "users") {
 
   def updated_at = column[Timestamp]("updated_at", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
-  def last_cached = column[Timestamp]("last_cached")
+  def last_cached = column[Timestamp]("last_cached", SqlType("timestamp not null default CURRENT_TIMESTAMP "))
 
   def private_profile = column[Boolean]("private_profile")
 
-  def cache = column[String]("cache")
-
+  def cache = column[String]("cache", Nullable)
 }

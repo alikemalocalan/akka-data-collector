@@ -9,12 +9,12 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 case class Machine(
                     id: Option[Int] = None,
                     name: String,
-                    created_at: Timestamp = new Timestamp(System.currentTimeMillis()),
+                    created_at: Option[Timestamp] = None,
                     userid: Int,
-                    inserted_at: Timestamp = new Timestamp(System.currentTimeMillis()),
-                    updated_at: Timestamp,
-                    api_salt: String,
-                    activated: Boolean
+                    inserted_at: Option[Timestamp] = None,
+                    updated_at: Option[Timestamp],
+                    api_salt: Option[String] = None,
+                    activated: Option[Boolean] = None
                   )
 
 object MachineProtocol extends DefaultJsonProtocol {
@@ -27,7 +27,7 @@ object MachineProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class MachineTable(tag: Tag) extends Table[Machine](tag, "machines") {
-  def * = (id.?, name, created_at, userid, inserted_at, updated_at, api_salt, activated) <> (Machine.tupled, Machine.unapply)
+  def * = (id.?, name, created_at.?, userid, inserted_at.?, updated_at.?, api_salt.?, activated.?) <> (Machine.tupled, Machine.unapply)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
@@ -43,7 +43,7 @@ class MachineTable(tag: Tag) extends Table[Machine](tag, "machines") {
 
   def activated = column[Boolean]("active")
 
-  def pk = foreignKey("machines_user_id_fkey", userid, TableQuery[UserTable])(_.id)
-
   def userid = column[Int]("user_id")
+
+  def pk = foreignKey("machines_user_id_fkey", userid, TableQuery[UserTable])(_.id)
 }

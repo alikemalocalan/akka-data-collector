@@ -1,8 +1,10 @@
+enablePlugins(JavaAppPackaging)
+
 name := "akka-data-collector"
-
 version := "0.1"
-
 scalaVersion := "2.11.11"
+
+scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
   val akkaV = "2.4.20"
@@ -19,3 +21,5 @@ libraryDependencies ++= {
 
   )
 }
+
+Revolver.settings

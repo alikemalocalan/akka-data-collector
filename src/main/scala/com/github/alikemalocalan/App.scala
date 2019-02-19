@@ -121,8 +121,8 @@ object App extends Config {
     val routes = userRoutes ~ healthRoute ~ pulseRoutes ~ machineRoute
 
     //DebuggingDirectives.logRequest("get-user")
-    Http().bindAndHandle(routes,interface = "0.0.0.0").map { r =>
-      logger.info("Server started on port 9000")
+    Http().bindAndHandle(routes,interface = address,port = port).map { _ =>
+      logger.info(s"Server started on port $address:$port")
     }
   }
 

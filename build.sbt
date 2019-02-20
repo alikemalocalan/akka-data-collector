@@ -1,24 +1,25 @@
-name := "akka-http-slick-example"
+enablePlugins(JavaAppPackaging)
 
+name := "akka-data-collector"
 version := "0.1"
+scalaVersion := "2.11.11"
 
-scalaVersion := "2.11.8"
+scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
-  val akkaV = "2.4.8"
-  val scalaTestV = "2.2.6"
+  val akkaV = "2.4.20"
+  val scalaTestV = "3.0.1"
+  val slickV = "3.3.0"
   Seq(
-    "com.typesafe"      %  "config"                             % "1.3.0",
-    "com.typesafe.akka" %% "akka-http-core"                     % akkaV,
-    "com.typesafe.akka" %% "akka-http-spray-json-experimental"  % akkaV,
-    "com.typesafe.akka" %% "akka-http-testkit-experimental"     % "2.4.2-RC3",
-    "org.scalatest"     %% "scalatest"                          % scalaTestV % "test",
-    "com.typesafe.akka" %% "akka-slf4j"                       % akkaV,
-    "org.postgresql"    % "postgresql"                        % "42.2.2",
-    "com.typesafe.slick" %% "slick" % "3.2.1",
-    "org.slf4j" % "slf4j-nop" % "1.6.4",
-    "com.typesafe.slick" %% "slick-hikaricp" % "3.2.1",
-    "com.typesafe.slick" %% "slick-codegen" % "3.2.1"
+    "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.13",
+    "com.typesafe.akka" %% "akka-slf4j" % akkaV,
+    "com.typesafe.slick" %% "slick-hikaricp" % slickV,
+    "com.typesafe.slick" %% "slick-codegen" % slickV,
+    "org.postgresql" % "postgresql" % "42.2.5",
+    "ch.qos.logback" % "logback-classic" % "1.2.3",
+    "org.scalatest" %% "scalatest" % scalaTestV % Test
 
   )
 }
+
+Revolver.settings

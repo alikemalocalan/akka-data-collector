@@ -5,39 +5,37 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.directives.DebuggingDirectives
 import akka.pattern.ask
 import akka.routing.RoundRobinPool
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import ch.qos.logback.classic.{Level, Logger}
 import com.github.alikemalocalan.actor.MasterActor
 import com.github.alikemalocalan.model._
 import com.github.alikemalocalan.repo.{MachineRepo, UserRepo}
-import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-object App extends Config {
-    private val logger = LoggerFactory.getLogger(this.getClass.getSimpleName)
+object App extends Config with DebuggingDirectives {
 
   val db: Database = Database.forConfig("slick-postgres")
   val machineRepo = new MachineRepo(db)
   val userRepo = new UserRepo(db)
 
-  implicit val system: ActorSystem = ActorSystem()
+  implicit val actorSystem: ActorSystem = ActorSystem()
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val ec: ExecutionContextExecutor = system.dispatcher
+  implicit val ec: ExecutionContextExecutor = actorSystem.dispatcher
   implicit val timeout: Timeout = Timeout(25 seconds)
 
+  val logger = actorSystem.log
   val masterProps: Props = Props(new MasterActor(db, workerCount))
     .withRouter(new RoundRobinPool(masterCount))
-  val pulseActor: ActorRef = system.actorOf(masterProps, "pulseinsert-actor")
+  val pulseActor: ActorRef = actorSystem.actorOf(masterProps, "pulseinsert-actor")
 
   def main(args: Array[String]): Unit = {
-    logger.asInstanceOf[Logger].setLevel(Level.DEBUG)
 
     """
       |{
@@ -120,9 +118,9 @@ object App extends Config {
 
     val routes = userRoutes ~ healthRoute ~ pulseRoutes ~ machineRoute
 
-    //DebuggingDirectives.logRequest("get-user")
-    Http().bindAndHandle(routes,interface = address,port = port).map { _ =>
-      logger.info(s"Server started on port $address:$port")
+    Http().bindAndHandle(handler = logRequestResult("logger")(routes),interface = address,port = port).onComplete {
+      case Success(b) => logger.info(s"application is up and running at ${b.localAddress.getHostName}:${b.localAddress.getPort}")
+      case Failure(e) => logger.error(s"could not start application: {}", e.getMessage)
     }
   }
 

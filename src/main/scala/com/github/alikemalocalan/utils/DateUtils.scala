@@ -3,13 +3,14 @@ package com.github.alikemalocalan.utils
 import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
+import java.util.TimeZone
 
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
 object DateUtils {
-  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX").withZone(TimeZone.getDefault.toZoneId)
 
-  def strToTimestamp(str: String): Timestamp = Timestamp.from(ZonedDateTime.parse(str, formatter.withZone(ZoneId.systemDefault())).toInstant)
+  def strToTimestamp(str: String): Timestamp = Timestamp.from(ZonedDateTime.parse(str, formatter).toInstant)
 
   def timestampToString(date: Timestamp): String = formatter.format(date.toInstant)
 

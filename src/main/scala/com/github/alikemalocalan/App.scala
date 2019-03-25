@@ -78,7 +78,7 @@ object App extends Config with DebuggingDirectives {
 
     """
       |{
-      |	"code_at":"2019-02-17 23:00:03",
+      |	"code_at":"2019-03-25T12:13:20+03:00",
       |	"xps":[{"language":"Java","xp":15}]
       |}
     """.stripMargin
@@ -91,7 +91,7 @@ object App extends Config with DebuggingDirectives {
               entity(as[XpResponse]) { entity =>
                 val token = authHeader.substring(6)
 
-                logger.debug(s"Request Pulse: ${entity.code_at} , token : $token")
+                logger.debug(s"Request Pulse: ${entity.coded_at} , token : $token")
 
                 onComplete(pulseActor ? InComingRequest(token, entity)) {
                   case Success(_) => complete(StatusCodes.Created)

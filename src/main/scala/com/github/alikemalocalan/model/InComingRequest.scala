@@ -11,7 +11,7 @@ object XpProtocol extends DefaultJsonProtocol {
   implicit val incomingJsonFormat: RootJsonFormat[Xp] = jsonFormat2(Xp)
 }
 
-case class XpResponse(code_at: String, xps: Array[Xp]) {
+case class XpResponse(coded_at: String, xps: Array[Xp]) {
   def toPulse(userId: Int, machineId: Int): Array[Pulse] = {
 
     val hashedOPulseId: String = RandomUtil.alphanumeric()
@@ -23,8 +23,8 @@ case class XpResponse(code_at: String, xps: Array[Xp]) {
         pulse_id = hashedOPulseId,
         lang_name = xp.language,
         xp_amount = xp.xp,
-        send_at = DateUtils.strToTimestamp(code_at),
-        inserted_at = DateUtils.strToTimestamp(code_at),
+        send_at = DateUtils.strToTimestamp(coded_at),
+        inserted_at = DateUtils.strToTimestamp(coded_at),
         updated_at = new Timestamp(System.currentTimeMillis()),
         send_at_local = new Timestamp(System.currentTimeMillis()),
         tz_offset = 3

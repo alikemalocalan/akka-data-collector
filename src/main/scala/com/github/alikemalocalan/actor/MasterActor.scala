@@ -29,7 +29,7 @@ class MasterActor(db: Database, workerCount: Int) extends Actor with ActorLoggin
   override def receive: Receive = {
 
     case pulse: InComingRequest =>
-      log.debug(s"Master Actor: tokenkey: ${pulse.token}, lang: ${pulse.xpResponse.code_at}, exp: ${pulse.xpResponse.xps.toString}")
+      log.debug(s"Master Actor: tokenkey: ${pulse.token}, lang: ${pulse.xpResponse.coded_at}, exp: ${pulse.xpResponse.xps.toString}")
       workerActorRouter.route(pulse, sender())
 
     case Terminated(s) =>

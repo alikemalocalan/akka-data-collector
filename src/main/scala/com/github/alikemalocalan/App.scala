@@ -89,7 +89,7 @@ object App extends Config with DebuggingDirectives {
           headerValueByName("X-API-Token") { authHeader =>
             if (authHeader.nonEmpty) {
               entity(as[XpResponse]) { entity =>
-                val token = authHeader.substring(6)
+                val token = authHeader.substring(0)
 
                 logger.debug(s"Request Pulse: ${entity.coded_at} , token : $token")
 

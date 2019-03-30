@@ -2,10 +2,9 @@ package com.github.alikemalocalan.repo
 
 import java.sql.Timestamp
 
-import ch.qos.logback.classic.{Level, Logger}
+import akka.event.slf4j.Logger
 import com.github.alikemalocalan.model.{Machine, MachineTable}
 import com.github.alikemalocalan.utils.RandomUtil
-import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
 
@@ -13,11 +12,10 @@ import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
 class MachineRepo(db: Database) extends TableQuery(new MachineTable(_)) {
-  private val logger = LoggerFactory.getLogger(this.getClass.getSimpleName)
-  logger.asInstanceOf[Logger].setLevel(Level.DEBUG)
+  private val logger = Logger(this.getClass.getSimpleName)
 
   def insertMachine(machine: Machine): Future[Option[String]] = {
-    logger.debug(s"User adding: ${machine.name}")
+    logger.info(s"User adding: ${machine.name}")
     val newMachine = Machine(
       name = machine.name,
       userid = machine.userid,

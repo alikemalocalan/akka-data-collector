@@ -1,6 +1,7 @@
 package com.github.alikemalocalan
 
 import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
@@ -49,7 +50,7 @@ object App extends Config with DebuggingDirectives {
       import com.github.alikemalocalan.model.UserProtocol._
       post {
         entity(as[User]) { user =>
-          logger.debug(s"User request: name: ${user.username}, id: ${user.id}")
+          logger.info(s"User request: name: ${user.username}, id: ${user.id}")
           onComplete(userRepo.insertUser(user)) {
             case Success(_) => complete(StatusCodes.Created)
             case Failure(e) => complete(StatusCodes.InternalServerError, e.getStackTrace.toString)
@@ -68,7 +69,7 @@ object App extends Config with DebuggingDirectives {
       import com.github.alikemalocalan.model.MachineProtocol._
       post {
         entity(as[Machine]) { machine =>
-          logger.debug(s"Machine request: name: ${machine.name}, userid: ${machine.userid}")
+          logger.info(s"Machine request: name: ${machine.name}, userid: ${machine.userid}")
           onComplete(machineRepo.insertMachine(machine)) {
             case Success(api_salt) => complete(StatusCodes.Created, api_salt)
             case Failure(e) => complete(StatusCodes.InternalServerError, e.getLocalizedMessage)
@@ -92,7 +93,7 @@ object App extends Config with DebuggingDirectives {
               entity(as[XpResponse]) { entity =>
                 val token = authHeader.substring(5)
 
-                logger.debug(s"Request Pulse: ${entity.coded_at} , token : $token")
+                logger.info(s"Request Pulse: ${entity.coded_at} , token : $token")
 
                 onComplete(pulseActor ? InComingRequest(token, entity)) {
                   case Success(_) => complete(StatusCodes.Created)
@@ -114,7 +115,7 @@ object App extends Config with DebuggingDirectives {
             if (authHeader.nonEmpty) {
               val token = authHeader.substring(6)
 
-              logger.debug(s"List Request Pulse:  , token : $token")
+              logger.info(s"List Request Pulse:  , token : $token")
 
 
               import com.github.alikemalocalan.model.PulseProtocol._
@@ -135,7 +136,7 @@ object App extends Config with DebuggingDirectives {
     val healthRoute = path("health") {
       pathEndOrSingleSlash {
         get {
-          logger.debug("Server OK")
+          logger.info("Server OK")
           complete(StatusCodes.OK)
         }
       }
@@ -146,7 +147,7 @@ object App extends Config with DebuggingDirectives {
       userRoutes ~ healthRoute ~ insertPulseRoutes ~ machineRoute ~ listPulseRoute
     }
 
-    Http().bindAndHandle(handler = logRequestResult("logger")(routes),interface = address,port = port).onComplete {
+    Http().bindAndHandle(handler = logRequestResult("Request logger",Logging.InfoLevel)(routes),interface = address,port = port).onComplete {
       case Success(b) => logger.info(s"application is up and running at ${b.localAddress.getHostName}:${b.localAddress.getPort}")
       case Failure(e) => logger.error(s"could not start application: {}", e.getMessage)
     }

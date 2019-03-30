@@ -2,22 +2,20 @@ package com.github.alikemalocalan.repo
 
 import java.sql.Timestamp
 
-import ch.qos.logback.classic.{Level, Logger}
+import akka.event.slf4j.Logger
 import com.github.alikemalocalan.model._
-import org.slf4j.LoggerFactory
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
 class UserRepo(db: Database) extends TableQuery(new UserTable(_)) {
-  private val logger= LoggerFactory.getLogger(this.getClass.getSimpleName)
-  logger.asInstanceOf[Logger].setLevel(Level.DEBUG)
+  private val logger= Logger(this.getClass.getSimpleName)
 
   val findByUsername = this.findBy(_.email)
 
   def insertUser(user: User): Future[Int] = {
-    logger.debug(s"User adding: ${user.username}")
+    logger.info(s"User adding: ${user.username}")
     val query = this += User(
       username = user.username,
       email = user.email,

@@ -2,24 +2,16 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
-            <pattern>%X{akkaTimestamp} %-5level[%thread] %logger{0} - %msg%n</pattern>
+            <pattern>%date | %-5level | %thread{35} | %logger{1} | %msg%n</pattern>
         </encoder>
     </appender>
-
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>akka.log</file>
-        <append>true</append>
-        <encoder>
-            <pattern>%date{yyyy-MM-dd} %X{akkaTimestamp} %-5level[%thread] %logger{1} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <logger name="akka" level="DEBUG"/>
 
     <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
-        <!--<appender-ref ref="FILE"/>-->
     </root>
+
+    <logger name="com.zaxxer.hikari.HikariConfig" level="INFO"/>      <!-- connection info    -->
+    <logger name="slick.relational" level="ERROR"/>
 
     <logger name="slick.basic.BasicBackend.action" level="${log.action:-info}"/>
     <logger name="slick.basic.BasicBackend.stream" level="${log.stream:-info}"/>

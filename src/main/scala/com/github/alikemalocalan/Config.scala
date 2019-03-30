@@ -11,5 +11,4 @@ trait Config {
 
   val masterCount: Int = hostConfig.getInt("masterCount")
   val workerCount: Int = hostConfig.getInt("masterCount")
-
 }

@@ -3,8 +3,8 @@ package com.github.alikemalocalan
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
+import akka.http.scaladsl.server.Directives.{entity, _}
 import akka.http.scaladsl.server.directives.DebuggingDirectives
 import akka.pattern.ask
 import akka.routing.RoundRobinPool
@@ -12,7 +12,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.github.alikemalocalan.actor.MasterActor
 import com.github.alikemalocalan.model._
-import com.github.alikemalocalan.repo.{MachineRepo, UserRepo}
+import com.github.alikemalocalan.repo.{MachineRepo, PulseRepo, UserRepo}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContextExecutor
@@ -24,6 +24,7 @@ object App extends Config with DebuggingDirectives {
   val db: Database = Database.forConfig("slick-postgres")
   val machineRepo = new MachineRepo(db)
   val userRepo = new UserRepo(db)
+  val pulseRepo = new PulseRepo(db)
 
   implicit val actorSystem: ActorSystem = ActorSystem()
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -82,14 +83,14 @@ object App extends Config with DebuggingDirectives {
       |	"xps":[{"language":"Java","xp":15}]
       |}
     """.stripMargin
-    val pulseRoutes = path("pulse") {
+    val insertPulseRoutes = path("pulse") {
       import com.github.alikemalocalan.model.XpResponseProtocol._
       pathEndOrSingleSlash {
         post {
           headerValueByName("X-API-Token") { authHeader =>
             if (authHeader.nonEmpty) {
               entity(as[XpResponse]) { entity =>
-                val token = authHeader.substring(0)
+                val token = authHeader.substring(5)
 
                 logger.debug(s"Request Pulse: ${entity.coded_at} , token : $token")
 
@@ -97,6 +98,31 @@ object App extends Config with DebuggingDirectives {
                   case Success(_) => complete(StatusCodes.Created)
                   case Failure(e) => complete(StatusCodes.InternalServerError, e.getLocalizedMessage)
                 }
+              }
+            } else {
+              complete(StatusCodes.Unauthorized)
+            }
+          }
+        }
+      }
+    }
+
+    val listPulseRoute = path("pulse") {
+      pathEndOrSingleSlash {
+        get {
+          headerValueByName("X-API-Token") { authHeader =>
+            if (authHeader.nonEmpty) {
+              val token = authHeader.substring(6)
+
+              logger.debug(s"List Request Pulse:  , token : $token")
+
+
+              import com.github.alikemalocalan.model.PulseProtocol._
+
+
+              onComplete(pulseRepo.listPulsesByLang(token)) {
+                case Success(x) => complete(x)
+                case Failure(e) => complete(StatusCodes.InternalServerError, e.getLocalizedMessage)
               }
             } else {
               complete(StatusCodes.Unauthorized)
@@ -116,7 +142,9 @@ object App extends Config with DebuggingDirectives {
     }
 
 
-    val routes = userRoutes ~ healthRoute ~ pulseRoutes ~ machineRoute
+    val routes = mapResponseEntity(_.withContentType(ContentTypes.`application/json`)) {
+      userRoutes ~ healthRoute ~ insertPulseRoutes ~ machineRoute ~ listPulseRoute
+    }
 
     Http().bindAndHandle(handler = logRequestResult("logger")(routes),interface = address,port = port).onComplete {
       case Success(b) => logger.info(s"application is up and running at ${b.localAddress.getHostName}:${b.localAddress.getPort}")

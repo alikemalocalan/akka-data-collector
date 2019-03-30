@@ -4,7 +4,6 @@ package com.github.alikemalocalan.model
 import java.sql.Timestamp
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.ProvenShape
 import slick.sql.SqlProfile.ColumnOption.SqlType
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
@@ -33,7 +32,7 @@ object PulseProtocol extends DefaultJsonProtocol {
 // create the schema
 //TableQuery[UserTable].schema.create,
 class PulseTable(tag: Tag) extends Table[Pulse](tag, "pulses") {
-  def * : ProvenShape[Pulse] = (id.?, user_id, machine_id, pulse_id, lang_name, xp_amount, send_at, inserted_at, updated_at, send_at_local, tz_offset) <> (Pulse.tupled, Pulse.unapply)
+  def * = (id.?, user_id, machine_id, pulse_id, lang_name, xp_amount, send_at, inserted_at, updated_at, send_at_local, tz_offset) <> (Pulse.tupled, Pulse.unapply)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 

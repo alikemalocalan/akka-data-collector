@@ -27,17 +27,20 @@ class MachineRepo(db: Database) extends TableQuery(new MachineTable(_)) {
       api_salt = Some(RandomUtil.alphanumeric(32)),
       activated = Some(true)
     )
-    db.run((this returning this.map(_.api_salt)) insertOrUpdate newMachine).recoverWith {
+    db.run((this returning this.map(_.api_salt)) insertOrUpdate newMachine)
+      .recoverWith {
       case ex: Exception => logger.error("Machine Insert ERROR", ex)
         Future.failed(ex)
     }
   }
 
-  def getMachineIdByToken(token: String): Future[Option[Machine]] = {
+  def getMachineIdByToken(token: String): Future[Machine] = {
     val useridReq = this.filter(_.api_salt === token)
-      //.map(machine => (machine.userid,machine.id))
-      .result
-      .headOption
+      .result.headOption
     db.run(useridReq)
+      .flatMap {
+        case Some(x) => Future.successful(x)
+        case None => Future.failed(new Exception("Machine not Found"))
+      }
   }
 }

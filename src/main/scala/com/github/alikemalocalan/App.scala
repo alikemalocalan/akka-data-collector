@@ -1,17 +1,16 @@
 package com.github.alikemalocalan
 
 import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.server.Directives.{entity, _}
-import akka.http.scaladsl.server.directives.DebuggingDirectives
 import akka.pattern.ask
 import akka.routing.RoundRobinPool
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.github.alikemalocalan.actor.MasterActor
+import com.github.alikemalocalan.logging.LoggingAdapter
 import com.github.alikemalocalan.model._
 import com.github.alikemalocalan.repo.{MachineRepo, PulseRepo, UserRepo}
 import slick.jdbc.PostgresProfile.api._
@@ -20,7 +19,7 @@ import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-object App extends Config with DebuggingDirectives {
+object App extends Config {
 
   val db: Database = Database.forConfig("slick-postgres")
   val machineRepo = new MachineRepo(db)
@@ -91,9 +90,9 @@ object App extends Config with DebuggingDirectives {
           headerValueByName("X-API-Token") { authHeader =>
             if (authHeader.nonEmpty) {
               entity(as[XpResponse]) { entity =>
-                val token = authHeader.substring(5)
+                val token = authHeader.substring(6)
 
-                logger.info(s"Request Pulse: ${entity.coded_at} , token : $token")
+                logger.info(s"Request Pulse token : $token")
 
                 onComplete(pulseActor ? InComingRequest(token, entity)) {
                   case Success(_) => complete(StatusCodes.Created)
@@ -147,7 +146,7 @@ object App extends Config with DebuggingDirectives {
       userRoutes ~ healthRoute ~ insertPulseRoutes ~ machineRoute ~ listPulseRoute
     }
 
-    Http().bindAndHandle(handler = logRequestResult("Request logger",Logging.InfoLevel)(routes),interface = address,port = port).onComplete {
+    Http().bindAndHandle(LoggingAdapter.clientRouteLogged(routes),interface = address,port = port).onComplete {
       case Success(b) => logger.info(s"application is up and running at ${b.localAddress.getHostName}:${b.localAddress.getPort}")
       case Failure(e) => logger.error(s"could not start application: {}", e.getMessage)
     }

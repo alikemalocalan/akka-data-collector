@@ -38,7 +38,10 @@ class MachineRepo(db: Database) extends TableQuery(new MachineTable(_)) {
     db.run(useridReq)
       .flatMap {
         case Some(x) => Future.successful(x)
-        case None => Future.failed(new Exception("Machine not Found"))
-      }
+        case None => Future.failed(new Exception("Machine getting ERROR"))
+      }.recoverWith {
+      case ex: Exception => logger.error(ex.getMessage,ex)
+        Future.failed(ex)
+    }
   }
 }

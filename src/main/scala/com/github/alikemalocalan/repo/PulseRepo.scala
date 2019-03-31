@@ -14,11 +14,12 @@ class PulseRepo(db: Database) extends TableQuery(new PulseTable(_)) {
   val machineRepo = new MachineRepo(db)
 
   def insertPulse(token: String, xpResponse: XpResponse): Future[Unit] = {
-    machineRepo.getMachineIdByToken(token).map { machine =>
+    machineRepo.getMachineIdByToken(token).map{machine =>
+      logger.info(s"alikemal:${machine.api_salt}")
       val insertingPulse = this ++= xpResponse.toPulse(machine.userid, machine.id.get).toSeq
-      db.run(DBIO.seq(insertingPulse))
+      db.run(DBIO.seq(insertingPulse).transactionally)
         .recoverWith {
-          case ex: Exception => logger.error("Pulse Insert ERROR", ex)
+          case ex: Exception => logger.error("Pulse inserting ERROR", ex)
             Future.failed(ex)
         }
     }

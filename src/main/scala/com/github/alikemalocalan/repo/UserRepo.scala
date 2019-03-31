@@ -25,7 +25,7 @@ class UserRepo(db: Database) extends TableQuery(new UserTable(_)) {
       last_cached = Some(new Timestamp(System.currentTimeMillis())),
       private_profile = Some(false)
     )
-    db.run(query).recoverWith {
+    db.run(query.transactionally).recoverWith {
       case ex: Exception => logger.error("User Insert ERROR", ex)
         Future.failed(ex)
     }

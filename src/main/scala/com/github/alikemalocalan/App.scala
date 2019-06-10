@@ -13,6 +13,8 @@ import com.github.alikemalocalan.actor.MasterActor
 import com.github.alikemalocalan.logging.LoggingAdapter
 import com.github.alikemalocalan.model._
 import com.github.alikemalocalan.repo.{MachineRepo, PulseRepo, UserRepo}
+import com.github.alikemalocalan.service.LoginRequestProtocol._
+import com.github.alikemalocalan.service.{JwtAuth, LoginRequest}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContextExecutor
@@ -115,10 +117,7 @@ object App extends Config {
               val token = authHeader.substring(6)
 
               logger.info(s"List Request Pulse:  , token : $token")
-
-
               import com.github.alikemalocalan.model.PulseProtocol._
-
 
               onComplete(pulseRepo.listPulsesByLang(token)) {
                 case Success(x) => complete(x)
@@ -141,9 +140,36 @@ object App extends Config {
       }
     }
 
+    val login = post {
+      entity(as[LoginRequest]) {
+        case lr @ LoginRequest("admin", "admin") =>
+          val token = JwtAuth.tryLogin(lr)
+          respondWithHeader(token.toHeader){
+            import com.github.alikemalocalan.service.TokenProtocol._
+            complete(StatusCodes.OK,token)
+          }
+        case LoginRequest(_, _) => complete(StatusCodes.Unauthorized)
+      }
+    }
+
+    val refleshToken = path("refleshtoken") {
+      pathEndOrSingleSlash {
+        get {
+          headerValueByName("Access-Token") { tokenHeader =>
+            if (tokenHeader.nonEmpty) {
+              if (JwtAuth.isValidToken(tokenHeader) && JwtAuth.isTokenExpired(tokenHeader))
+                complete(JwtAuth.getClaim(tokenHeader).toJson)
+              else complete(StatusCodes.Unauthorized)
+            } else {
+              complete(StatusCodes.Unauthorized)
+            }
+          }
+        }
+      }
+    }
 
     val routes = mapResponseEntity(_.withContentType(ContentTypes.`application/json`)) {
-      userRoutes ~ healthRoute ~ insertPulseRoutes ~ machineRoute ~ listPulseRoute
+      userRoutes ~ healthRoute ~ insertPulseRoutes ~ machineRoute ~ listPulseRoute ~ login ~ refleshToken
     }
 
     Http().bindAndHandle(LoggingAdapter.clientRouteLogged(routes),interface = address,port = port).onComplete {

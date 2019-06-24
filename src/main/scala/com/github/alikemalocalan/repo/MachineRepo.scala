@@ -8,10 +8,9 @@ import com.github.alikemalocalan.utils.RandomUtil
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class MachineRepo(db: Database) extends TableQuery(new MachineTable(_)) {
+class MachineRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends TableQuery(new MachineTable(_)) {
   private val logger = Logger(this.getClass.getSimpleName)
 
   def insertMachine(machine: Machine): Future[Option[String]] = {

@@ -17,11 +17,10 @@ class PulseInsertActor(db: Database) extends Actor with ActorLogging {
       case _: Exception => Restart
     }
 
-  val repo = new PulseRepo(db)
 
   override def receive: Receive = {
     case event: InComingRequest =>
-      val result = repo.insertPulse(event.token, event.xpResponse)
+      val result = new PulseRepo(db).insertPulse(event.token, event.xpResponse)
       val senderActor = sender()
 
       result.onComplete {

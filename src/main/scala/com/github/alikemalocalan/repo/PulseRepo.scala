@@ -5,10 +5,9 @@ import com.github.alikemalocalan.model.{Pulse, PulseTable, XpResponse}
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class PulseRepo(db: Database) extends TableQuery(new PulseTable(_)) {
+class PulseRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends TableQuery(new PulseTable(_)) {
   private val logger= Logger(this.getClass.getSimpleName)
 
   val machineRepo = new MachineRepo(db)

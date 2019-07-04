@@ -39,11 +39,11 @@ class PulseController(db:Database, pulseActor: ActorRef)(implicit dbExecutor: Ex
         headerValueByName("X-API-Token") { authHeader =>
           if (authHeader.nonEmpty) {
             entity(as[XpResponse]) { entity =>
-              val token = authHeader.substring(6)
+              //val token = authHeader.substring(6)
 
-              logger.info(s"Request Pulse token : $token")
+              logger.info(s"Request Pulse token : $authHeader")
 
-              onComplete(pulseActor ? InComingRequest(token, entity)) {
+              onComplete(pulseActor ? InComingRequest(authHeader, entity)) {
                 case Success(_) => complete(StatusCodes.Created)
                 case Failure(e) => complete(StatusCodes.InternalServerError, e.getLocalizedMessage)
               }

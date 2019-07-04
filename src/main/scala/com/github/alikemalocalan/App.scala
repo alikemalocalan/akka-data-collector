@@ -1,5 +1,6 @@
 package com.github.alikemalocalan
 
+import java.util.Locale
 import java.util.concurrent.Executors
 
 import akka.actor.{ActorRef, ActorSystem, Props}
@@ -20,7 +21,7 @@ import scala.util.{Failure, Success}
 
 object App extends Config {
 
-
+  Locale.setDefault(Locale.US)
   implicit val actorSystem: ActorSystem = ActorSystem()
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val ec: ExecutionContextExecutor = actorSystem.dispatcher

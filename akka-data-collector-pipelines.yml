@@ -1,0 +1,49 @@
+- pipeline: "buddyworkstest"
+  trigger_mode: "MANUAL"
+  ref_type: "NONE"
+  trigger_condition: "ALWAYS"
+  actions:
+  - action: "Execute: sbt compile"
+    type: "BUILD"
+    disabled: true
+    working_directory: "/buddy/akka-data-collector"
+    use_image_from_action: true
+    execute_commands:
+    - "# Install Scala"
+    - "curl -fsL https://downloads.typesafe.com/scala/2.11.11/scala-2.11.11.tgz | tar xfz - -C /root/ && \\"
+    - "echo >> /root/.bashrc && \\"
+    - "echo \"export PATH=~/scala-2.11.11/bin:$PATH\" >> /root/.bashrc"
+    - "# Install sbt"
+    - "curl -L -o sbt-1.1.2.deb https://dl.bintray.com/sbt/debian/sbt-1.1.2.deb && \\"
+    - "dpkg -i sbt-1.1.2.deb && \\"
+    - "rm sbt-1.1.2.deb && \\"
+    - "apt-get update && \\"
+    - "apt-get install sbt && \\"
+    - "sbt sbtVersion"
+    - "sbt compile"
+    setup_commands:
+    - "# Install Scala"
+    - "curl -fsL https://downloads.typesafe.com/scala/2.11.11/scala-2.11.11.tgz | tar xfz - -C /root/ && \\"
+    - "echo >> /root/.bashrc && \\"
+    - "echo \"export PATH=~/scala-2.11.11/bin:$PATH\" >> /root/.bashrc"
+    - "# Install sbt"
+    - "curl -L -o sbt-1.1.2.deb https://dl.bintray.com/sbt/debian/sbt-1.1.2.deb && \\"
+    - "dpkg -i sbt-1.1.2.deb && \\"
+    - "rm sbt-1.1.2.deb && \\"
+    - "apt-get update && \\"
+    - "apt-get install sbt && \\"
+    - "sbt sbtVersion"
+    services:
+    - type: "POSTGRE_SQL"
+      version: "9.5.3"
+      connection:
+        host: "postgres"
+        port: 5432
+        user: "root"
+        password: "root"
+    cached_dirs:
+    - "/root/.ivy2/cache"
+    - "/root/.sbt"
+    mount_filesystem_path: "/buddy/akka-data-collector"
+    shell: "BASH"
+    trigger_condition: "ALWAYS"

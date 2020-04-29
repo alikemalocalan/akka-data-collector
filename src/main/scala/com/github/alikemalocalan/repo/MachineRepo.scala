@@ -2,16 +2,18 @@ package com.github.alikemalocalan.repo
 
 import java.sql.Timestamp
 
-import akka.event.slf4j.Logger
 import com.github.alikemalocalan.model.{Machine, MachineTable}
 import com.github.alikemalocalan.utils.RandomUtil
+import com.typesafe.scalalogging.LazyLogging
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MachineRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends TableQuery(new MachineTable(_)) {
-  private val logger = Logger(this.getClass.getSimpleName)
+class MachineRepo(db: Database)
+                 (implicit dbExecutor: ExecutionContext)
+  extends TableQuery(new MachineTable(_))
+    with LazyLogging {
 
   def insertMachine(machine: Machine): Future[Option[String]] = {
     logger.info(s"User adding: ${machine.name}")
@@ -26,9 +28,9 @@ class MachineRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends T
     )
     db.run((this returning this.map(_.api_salt)) insertOrUpdate newMachine)
       .recoverWith {
-      case ex: Exception => logger.error("Machine Insert ERROR", ex)
-        Future.failed(ex)
-    }
+        case ex: Exception => logger.error("Machine Insert ERROR", ex)
+          Future.failed(ex)
+      }
   }
 
   def getMachineIdByToken(token: String): Future[Machine] = {
@@ -39,7 +41,7 @@ class MachineRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends T
         case Some(x) => Future.successful(x)
         case None => Future.failed(new Exception("Machine getting ERROR"))
       }.recoverWith {
-      case ex: Exception => logger.error(ex.getMessage,ex)
+      case ex: Exception => logger.error(ex.getMessage, ex)
         Future.failed(ex)
     }
   }

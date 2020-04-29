@@ -9,7 +9,7 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 final case class LoginRequest(username: String, password: String)
 
 final case class Token(`Access-Token`: String, expiredAt: Option[Long]) {
-  def toHeader=RawHeader("Access-Token",`Access-Token`)
+  def toHeader: RawHeader = RawHeader("Access-Token", `Access-Token`)
 }
 
 object LoginRequestProtocol extends DefaultJsonProtocol {
@@ -31,9 +31,9 @@ object JwtAuth {
     issuedAt = Some(Instant.now.getEpochSecond)
   )
 
-  private def token: String = JwtSprayJson.encode(claim, secretKey, algorithm)
-
   def tryLogin(lr: LoginRequest): Token = Token(token, claim.expiration)
+
+  private def token: String = JwtSprayJson.encode(claim, secretKey, algorithm)
 
   def isTokenExpired(jwt: String): Boolean = getClaim(jwt).expiration.get < System.currentTimeMillis
 

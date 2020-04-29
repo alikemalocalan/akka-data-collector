@@ -23,19 +23,21 @@ SET default_with_oids = false;
 -- Name: machines; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.machines (
-    id bigint NOT NULL,
-    name character varying(255),
-    created_at timestamp without time zone,
-    user_id bigint,
+CREATE TABLE public.machines
+(
+    id          bigint                      NOT NULL,
+    name        character varying(255),
+    created_at  timestamp without time zone,
+    user_id     bigint,
     inserted_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    api_salt character varying(255),
-    active boolean DEFAULT true NOT NULL
+    updated_at  timestamp without time zone NOT NULL,
+    api_salt    character varying(255),
+    active      boolean DEFAULT true        NOT NULL
 );
 
 
-ALTER TABLE public.machines OWNER TO postgres;
+ALTER TABLE public.machines
+    OWNER TO postgres;
 
 --
 -- Name: machines_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -49,7 +51,8 @@ CREATE SEQUENCE public.machines_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.machines_id_seq OWNER TO postgres;
+ALTER TABLE public.machines_id_seq
+    OWNER TO postgres;
 
 --
 -- Name: machines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -62,22 +65,24 @@ ALTER SEQUENCE public.machines_id_seq OWNED BY public.machines.id;
 -- Name: pulses; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.pulses (
-    id bigint NOT NULL,
-    sent_at timestamp without time zone,
-    user_id bigint,
-    inserted_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    machine_id bigint,
+CREATE TABLE public.pulses
+(
+    id            bigint                      NOT NULL,
+    sent_at       timestamp without time zone,
+    user_id       bigint,
+    inserted_at   timestamp without time zone NOT NULL,
+    updated_at    timestamp without time zone NOT NULL,
+    machine_id    bigint,
     sent_at_local timestamp without time zone,
-    tz_offset smallint,
-    pulse_id character varying NOT NULL,
-    lang_name character varying NOT NULL,
-    xp_amount integer NOT NULL
+    tz_offset     smallint,
+    pulse_id      character varying           NOT NULL,
+    lang_name     character varying           NOT NULL,
+    xp_amount     integer                     NOT NULL
 );
 
 
-ALTER TABLE public.pulses OWNER TO postgres;
+ALTER TABLE public.pulses
+    OWNER TO postgres;
 
 --
 -- Name: pulses_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -91,7 +96,8 @@ CREATE SEQUENCE public.pulses_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pulses_id_seq OWNER TO postgres;
+ALTER TABLE public.pulses_id_seq
+    OWNER TO postgres;
 
 --
 -- Name: pulses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -104,20 +110,22 @@ ALTER SEQUENCE public.pulses_id_seq OWNED BY public.pulses.id;
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.users (
-    id bigint NOT NULL,
-    username character varying(255) NOT NULL,
-    email character varying(255),
-    password character varying(255) NOT NULL,
-    inserted_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    last_cached timestamp without time zone,
-    private_profile boolean DEFAULT false NOT NULL,
-    cache character varying(500)
+CREATE TABLE public.users
+(
+    id              bigint                      NOT NULL,
+    username        character varying(255)      NOT NULL,
+    email           character varying(255),
+    password        character varying(255)      NOT NULL,
+    inserted_at     timestamp without time zone NOT NULL,
+    updated_at      timestamp without time zone NOT NULL,
+    last_cached     timestamp without time zone,
+    private_profile boolean DEFAULT false       NOT NULL,
+    cache           character varying(500)
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users
+    OWNER TO postgres;
 
 --
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -131,7 +139,8 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO postgres;
+ALTER TABLE public.users_id_seq
+    OWNER TO postgres;
 
 --
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -144,21 +153,24 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 -- Name: machines id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.machines ALTER COLUMN id SET DEFAULT nextval('public.machines_id_seq'::regclass);
+ALTER TABLE ONLY public.machines
+    ALTER COLUMN id SET DEFAULT nextval('public.machines_id_seq'::regclass);
 
 
 --
 -- Name: pulses id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pulses ALTER COLUMN id SET DEFAULT nextval('public.pulses_id_seq'::regclass);
+ALTER TABLE ONLY public.pulses
+    ALTER COLUMN id SET DEFAULT nextval('public.pulses_id_seq'::regclass);
 
 
 --
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+ALTER TABLE ONLY public.users
+    ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
@@ -174,7 +186,8 @@ COPY public.machines (id, name, created_at, user_id, inserted_at, updated_at, ap
 -- Data for Name: pulses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.pulses (id, sent_at, user_id, inserted_at, updated_at, machine_id, sent_at_local, tz_offset, pulse_id, lang_name, xp_amount) FROM stdin;
+COPY public.pulses (id, sent_at, user_id, inserted_at, updated_at, machine_id, sent_at_local, tz_offset, pulse_id,
+                    lang_name, xp_amount) FROM stdin;
 2	2019-02-17 23:00:03	11	2019-02-17 23:00:03	2019-02-18 01:14:48.786	4	2019-02-18 01:14:48.786	3	sgif9a7a0o49fu86ci9o0hq2	Java	15
 3	2019-02-17 23:00:03	11	2019-02-17 23:00:03	2019-02-18 01:15:09.619	4	2019-02-18 01:15:09.619	3	38ego8qcac8mgfrc28t2mvsv	Java	15
 4	2019-02-17 23:00:03	11	2019-02-17 23:00:03	2019-02-18 01:18:26.658	4	2019-02-18 01:18:26.658	3	3fqekuk9dun0kbmjnifkobl6	Java	15
@@ -194,7 +207,8 @@ COPY public.pulses (id, sent_at, user_id, inserted_at, updated_at, machine_id, s
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id, username, email, password, inserted_at, updated_at, last_cached, private_profile, cache) FROM stdin;
+COPY public.users (id, username, email, password, inserted_at, updated_at, last_cached, private_profile,
+                   cache) FROM stdin;
 11	alikemal	ali@alikemal.org	123456	2019-02-17 19:08:34.743	2019-02-17 19:08:34.743	2019-02-17 19:08:34.743	f	\N
 \.
 
@@ -291,7 +305,7 @@ CREATE UNIQUE INDEX users_username_index ON public.users USING btree (username);
 --
 
 ALTER TABLE ONLY public.machines
-    ADD CONSTRAINT machines_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+    ADD CONSTRAINT machines_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE;
 
 
 --
@@ -299,7 +313,7 @@ ALTER TABLE ONLY public.machines
 --
 
 ALTER TABLE ONLY public.pulses
-    ADD CONSTRAINT pulses_machine_id_fkey FOREIGN KEY (machine_id) REFERENCES public.machines(id) ON DELETE CASCADE;
+    ADD CONSTRAINT pulses_machine_id_fkey FOREIGN KEY (machine_id) REFERENCES public.machines (id) ON DELETE CASCADE;
 
 
 --
@@ -307,7 +321,7 @@ ALTER TABLE ONLY public.pulses
 --
 
 ALTER TABLE ONLY public.pulses
-    ADD CONSTRAINT pulses_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+    ADD CONSTRAINT pulses_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE;
 
 
 --

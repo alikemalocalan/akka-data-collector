@@ -55,7 +55,7 @@ object App extends Config {
       healthRoute ~ pulseController.corsSupportedRoutes ~ machineController.corsSupportedRoutes ~ userController.corsSupportedRoutes
     }
 
-    Http().bindAndHandle(LoggingAdapter.clientRouteLogged(routes),interface = address,port = port).onComplete {
+    Http().bindAndHandle(LoggingAdapter.clientRouteLogged(routes), interface = address, port = port).onComplete {
       case Success(b) => logger.info(s"application is up and running at ${b.localAddress.getHostName}:${b.localAddress.getPort}")
       case Failure(e) => logger.error(s"could not start application: {}", e.getMessage)
     }

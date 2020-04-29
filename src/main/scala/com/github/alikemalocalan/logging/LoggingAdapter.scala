@@ -9,9 +9,7 @@ import akka.http.scaladsl.server.{Route, RouteResult}
 
 object LoggingAdapter {
   /**
-    * @Reference:
     * @see <a href="https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/debugging-directives/logRequestResult.html#building-advanced-directives"></a>
-    *
     */
 
   def printResponseTime(log: LoggingAdapter): HttpRequest => RouteResult => Unit = {

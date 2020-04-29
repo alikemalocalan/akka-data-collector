@@ -6,22 +6,21 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ExceptionHandler, PathMatcher, Route}
 import com.github.alikemalocalan.model.User
 import com.github.alikemalocalan.repo.UserRepo
-import com.github.alikemalocalan.service.BasicAuth
-import org.slf4j.{Logger, LoggerFactory}
 import com.github.alikemalocalan.service.LoginRequestProtocol._
-import com.github.alikemalocalan.service.{JwtAuth, LoginRequest}
+import com.github.alikemalocalan.service.{BasicAuth, JwtAuth, LoginRequest}
+import com.typesafe.scalalogging.LazyLogging
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 
-class UserController(db: Database)(implicit dbExecutor: ExecutionContext, eh: ExceptionHandler) extends CorsSupport {
+class UserController(db: Database)(implicit dbExecutor: ExecutionContext, eh: ExceptionHandler)
+  extends CorsSupport
+    with LazyLogging {
 
-  private val log: Logger = LoggerFactory.getLogger(classOf[UserController])
   private val basePath: PathMatcher[Unit] = "api" / "v1" / "user"
-  private val userRepo=new UserRepo(db)
-
+  private val userRepo = new UserRepo(db)
 
   val insertUser: Route = path(basePath) {
     import com.github.alikemalocalan.model.UserProtocol._
@@ -35,15 +34,13 @@ class UserController(db: Database)(implicit dbExecutor: ExecutionContext, eh: Ex
       }
     }
   }
-
-  """
-    |{
-    |	"username":"alikemal",
-    |	"email":"ali@alikemal.org",
-    |	"password":"123456"
-    |}
-  """.stripMargin
-
+  /*
+    {
+    	"username":"alikemal",
+    	"email":"ali@alikemal.org",
+    	"password":"123456"
+    }
+  */
   private val getUser: Route =
     pathPrefix(basePath) {
       pathEndOrSingleSlash {

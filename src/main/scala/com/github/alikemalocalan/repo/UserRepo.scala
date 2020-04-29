@@ -2,16 +2,16 @@ package com.github.alikemalocalan.repo
 
 import java.sql.Timestamp
 
-import akka.event.slf4j.Logger
 import com.github.alikemalocalan.model._
+import com.typesafe.scalalogging.LazyLogging
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends TableQuery(new UserTable(_)) {
-  private val logger= Logger(this.getClass.getSimpleName)
-
-  private def findByUsername(username:String) = this.findBy(_.username).apply(username)
+class UserRepo(db: Database)
+              (implicit dbExecutor: ExecutionContext)
+  extends TableQuery(new UserTable(_))
+    with LazyLogging {
 
   def insertUser(user: User): Future[Int] = {
     logger.info(s"User adding: ${user.username}")
@@ -31,6 +31,8 @@ class UserRepo(db: Database)(implicit dbExecutor: ExecutionContext) extends Tabl
     }
   }
 
-  def getUserbyName:String=> Future[User] = userName=>
+  def getUserbyName: String => Future[User] = userName =>
     db.run(findByUsername(userName).result.head)
+
+  private def findByUsername(username: String) = this.findBy(_.username).apply(username)
 }
